@@ -6,17 +6,28 @@ class SvgStyleRegistry {
   final Map<String, SvgStyle> _registry = {};
 
   void parseAndRegisterCss(String cssContent) {
-    final compoundRegExp = RegExp(r'\.([a-zA-Z0-9_-]+(?:\s*,\s*\.[a-zA-Z0-9_-]+)*)\s*\{([^}]+)\}');
-    final matches = compoundRegExp.allMatches(cssContent);
+    final noComments = cssContent.replaceAll(RegExp(r'/\*[\s\S]*?\*/'), '');
+    final blockRegExp = RegExp(r'([^\{\}]+)\{([^}]+)\}');
+    final matches = blockRegExp.allMatches(noComments);
 
     for (var match in matches) {
-      final classGroup = match.group(1)!;
+      final selectorsString = match.group(1)!.trim();
       final rulesBlock = match.group(2)!;
-      final classNames = classGroup.split(',').map((s) => s.trim().replaceFirst('.', '')).toList();
+
+      if (selectorsString.startsWith('@')) continue;
+
+      final selectors = selectorsString.split(',');
       final parsedStyle = _parseRules(rulesBlock);
 
-      for (var className in classNames) {
-        _registry[className] = parsedStyle;
+      for (var selector in selectors) {
+        selector = selector.trim();
+        if (selector.startsWith('.') &&
+            !selector.contains(' ') &&
+            !selector.contains(':') &&
+            !selector.contains('>')) {
+          final className = selector.replaceFirst('.', '');
+          _registry[className] = parsedStyle;
+        }
       }
     }
   }
@@ -43,6 +54,7 @@ class SvgStyleRegistry {
     double strokeWidth = 1.0;
     bool hasFill = false;
     bool hasStroke = false;
+    double opacity = 1.0;
 
     for (var rule in rules) {
       if (!rule.contains(':')) continue;
@@ -66,7 +78,15 @@ class SvgStyleRegistry {
         case 'stroke-width':
           strokeWidth = double.tryParse(value.replaceAll('px', '')) ?? 1.0;
           break;
+        case 'opacity':
+          opacity = double.tryParse(value) ?? 1.0;
+          break;
       }
+    }
+
+    if (opacity < 1.0) {
+      fill = fill.withOpacity(opacity);
+      stroke = stroke.withOpacity(opacity);
     }
 
     return SvgStyle(
@@ -112,6 +132,11 @@ class SvgStyleRegistry {
     double strokeWidth = baseStrokePaint?.strokeWidth ?? 1.0;
     bool hasFill = baseHasFill;
     bool hasStroke = baseHasStroke;
+    double opacity = 1.0;
+
+    if (inline.containsKey('opacity')) {
+      opacity = double.tryParse(inline['opacity']!) ?? 1.0;
+    }
 
     if (inline.containsKey('fill')) {
       final fillVal = inline['fill']!;
@@ -138,6 +163,11 @@ class SvgStyleRegistry {
       if (hasStroke) {
         hasStroke = true;
       }
+    }
+
+    if (opacity < 1.0) {
+      fillColor = fillColor.withOpacity(opacity);
+      strokeColor = strokeColor.withOpacity(opacity);
     }
 
     return SvgStyle(

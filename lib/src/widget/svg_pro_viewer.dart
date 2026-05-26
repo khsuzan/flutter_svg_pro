@@ -24,29 +24,41 @@ class SvgProViewer extends StatefulWidget {
 }
 
 class _SvgProViewerState extends State<SvgProViewer> {
-  late final SvgParserEngine _parserEngine;
-  late final List<SvgPart> _parsedComponents;
+  SvgParserEngine? _parserEngine;
+  List<SvgPart>? _parsedComponents;
   String? _selectedComponentId;
 
   @override
   void initState() {
     super.initState();
-    _parserEngine = SvgParserEngine();
-    _parsedComponents = _parserEngine.parse(widget.rawSvg, externalCss: widget.externalCss);
+    _loadSvg();
+  }
+
+  Future<void> _loadSvg() async {
+    final engine = SvgParserEngine();
+    final components = await engine.parseAsync(widget.rawSvg, externalCss: widget.externalCss);
+    if (mounted) {
+      setState(() {
+        _parserEngine = engine;
+        _parsedComponents = components;
+      });
+    }
   }
 
   void _processTapEvent(Offset globalOffset, BoxConstraints limits) {
+    if (_parserEngine == null || _parsedComponents == null) return;
+
     final renderBox = context.findRenderObject() as RenderBox;
     final localLayoutOffset = renderBox.globalToLocal(globalOffset);
 
     final viewportTransformer = SvgViewportTransformation(
-      viewBox: _parserEngine.viewBox,
+      viewBox: _parserEngine!.viewBox,
       canvasLayoutSize: Size(limits.maxWidth, limits.maxHeight),
     );
 
     final vectorSpaceOffset = viewportTransformer.screenToVectorSpace(localLayoutOffset);
 
-    for (var component in _parsedComponents.reversed) {
+    for (var component in _parsedComponents!.reversed) {
       for (var drawable in component.drawablePaths) {
         if (drawable.path.contains(vectorSpaceOffset)) {
           setState(() {
@@ -63,7 +75,11 @@ class _SvgProViewerState extends State<SvgProViewer> {
 
   @override
   Widget build(BuildContext context) {
-    final viewBox = _parserEngine.viewBox;
+    if (_parserEngine == null || _parsedComponents == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final viewBox = _parserEngine!.viewBox;
     final aspectRatio = (viewBox.width > 0 && viewBox.height > 0)
         ? viewBox.width / viewBox.height
         : 1.0;
@@ -77,9 +93,9 @@ class _SvgProViewerState extends State<SvgProViewer> {
             child: CustomPaint(
               size: Size(constraints.maxWidth, constraints.maxHeight),
               painter: SvgCanvasPainter(
-                parts: _parsedComponents,
+                parts: _parsedComponents!,
                 selectedId: _selectedComponentId,
-                viewBox: _parserEngine.viewBox,
+                viewBox: _parserEngine!.viewBox,
                 highlightColor: widget.selectionHighlightColor ?? const Color(0x802196F3),
               ),
             ),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:xml/xml.dart';
 import 'package:vector_math/vector_math_64.dart';
 import 'package:path_drawing/path_drawing.dart';
+import 'package:flutter/foundation.dart';
 
 import '../css/svg_style_registry.dart';
 import '../models/drawable_path.dart';
@@ -11,16 +12,22 @@ import '../models/svg_part.dart';
 class SvgParserEngine {
   final SvgStyleRegistry styleRegistry = SvgStyleRegistry();
   Rect viewBox = Rect.zero;
+  final Stopwatch _yieldTimer = Stopwatch();
 
-  List<SvgPart> parse(String rawSvgText, {String? externalCss}) {
+  Future<List<SvgPart>> parseAsync(String rawSvgText, {String? externalCss}) async {
     if (externalCss != null) styleRegistry.parseAndRegisterCss(externalCss);
 
-    final document = XmlDocument.parse(rawSvgText);
+    // Offload heavy XML parsing to a background isolate!
+    final document = await compute(XmlDocument.parse, rawSvgText);
     final svgRoot = document.findAllElements('svg').first;
 
     final viewBoxAttr = svgRoot.getAttribute('viewBox');
     if (viewBoxAttr != null) {
-      final coords = viewBoxAttr.split(RegExp(r'[\s,]+')).map(double.parse).toList();
+      final coords = viewBoxAttr.split(RegExp(r'[\s,]+'))
+          .where((s) => s.isNotEmpty)
+          .map((s) => double.tryParse(s))
+          .whereType<double>()
+          .toList();
       if (coords.length >= 4) {
         viewBox = Rect.fromLTWH(coords[0], coords[1], coords[2], coords[3]);
       }
@@ -45,19 +52,26 @@ class SvgParserEngine {
       styleRegistry.parseAndRegisterCss(styleElement.innerText);
     }
 
+    _yieldTimer.start();
     final discoveredParts = <SvgPart>[];
-    _traverseNode(svgRoot, Matrix4.identity(), null, null, discoveredParts);
+    await _traverseNodeAsync(svgRoot, Matrix4.identity(), null, null, discoveredParts);
+    _yieldTimer.stop();
     return discoveredParts;
   }
 
-  void _traverseNode(
+  Future<void> _traverseNodeAsync(
     XmlNode node,
     Matrix4 inheritedTransform,
     String? currentPartId,
     String? currentPartName,
     List<SvgPart> partsCollector,
-  ) {
+  ) async {
     for (var child in node.children) {
+      if (_yieldTimer.elapsedMilliseconds > 16) {
+        await Future.delayed(Duration.zero);
+        _yieldTimer.reset();
+      }
+
       if (child is! XmlElement) continue;
 
       final localTransform = _parseTransform(child.getAttribute('transform'));
@@ -66,13 +80,13 @@ class SvgParserEngine {
       if (child.name.local == 'a') {
         final mouseMoveAttr = child.getAttribute('onmousemove') ?? '';
         final extractedName = _extractTooltipLabel(mouseMoveAttr);
-        _traverseNode(child, accumulatedTransform, currentPartId, extractedName, partsCollector);
+        await _traverseNodeAsync(child, accumulatedTransform, currentPartId, extractedName, partsCollector);
         continue;
       }
 
       if (child.name.local == 'g') {
         final groupId = child.getAttribute('id');
-        _traverseNode(
+        await _traverseNodeAsync(
           child,
           accumulatedTransform,
           groupId ?? currentPartId,
@@ -157,7 +171,8 @@ class SvgParserEngine {
         final points = pointsAttr
             .split(RegExp(r'[\s,]+'))
             .where((s) => s.isNotEmpty)
-            .map(double.parse)
+            .map((s) => double.tryParse(s))
+            .whereType<double>()
             .toList();
         if (points.length < 2) return null;
         final path = Path();
@@ -185,7 +200,9 @@ class SvgParserEngine {
             .replaceAll('matrix(', '')
             .replaceAll(')', '')
             .split(RegExp(r'[\s,]+'))
-            .map(double.parse)
+            .where((s) => s.isNotEmpty)
+            .map((s) => double.tryParse(s))
+            .whereType<double>()
             .toList();
         if (cleanValues.length == 6) {
           return Matrix4(
@@ -204,7 +221,9 @@ class SvgParserEngine {
             .replaceAll('translate(', '')
             .replaceAll(')', '')
             .split(RegExp(r'[\s,]+'))
-            .map(double.parse)
+            .where((s) => s.isNotEmpty)
+            .map((s) => double.tryParse(s))
+            .whereType<double>()
             .toList();
         final tx = cleanValues.isNotEmpty ? cleanValues[0] : 0.0;
         final ty = cleanValues.length > 1 ? cleanValues[1] : 0.0;
@@ -220,7 +239,9 @@ class SvgParserEngine {
             .replaceAll('scale(', '')
             .replaceAll(')', '')
             .split(RegExp(r'[\s,]+'))
-            .map(double.parse)
+            .where((s) => s.isNotEmpty)
+            .map((s) => double.tryParse(s))
+            .whereType<double>()
             .toList();
         final sx = cleanValues.isNotEmpty ? cleanValues[0] : 1.0;
         final sy = cleanValues.length > 1 ? cleanValues[1] : sx;
@@ -234,7 +255,9 @@ class SvgParserEngine {
             .replaceAll('rotate(', '')
             .replaceAll(')', '')
             .split(RegExp(r'[\s,]+'))
-            .map(double.parse)
+            .where((s) => s.isNotEmpty)
+            .map((s) => double.tryParse(s))
+            .whereType<double>()
             .toList();
         final a = cleanValues.isNotEmpty ? cleanValues[0] : 0.0;
         final cx = cleanValues.length > 1 ? cleanValues[1] : 0.0;
