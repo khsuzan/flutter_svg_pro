@@ -3,12 +3,24 @@ import 'package:flutter/material.dart';
 import '../models/svg_part.dart';
 import '../transformer/svg_viewport_transformation.dart';
 
+/// A custom [CustomPainter] that renders the vector paths of the SVG onto a canvas.
+/// 
+/// Handles aspect ratio fitting, scale transformations, and renders
+/// selected parts with a custom select overlay highlight color.
 class SvgCanvasPainter extends CustomPainter {
+  /// The list of [SvgPart] elements representing the selectable SVG geometry.
   final List<SvgPart> parts;
+
+  /// The active set of unique identifiers representing currently selected parts.
   final Set<String> selectedIds;
+
+  /// The viewBox limits defined in the parsed SVG.
   final Rect viewBox;
+
+  /// The overlay highlight color used to render selected parts.
   final Color highlightColor;
 
+  /// Creates a canvas painter with the given parameters.
   SvgCanvasPainter({
     required this.parts,
     required this.selectedIds,

@@ -9,10 +9,22 @@ import '../css/svg_style_registry.dart';
 import '../models/drawable_path.dart';
 import '../models/svg_part.dart';
 
+/// An isolate-aware, high-performance engine that parses SVG XML content.
+/// 
+/// Resolves elements, inherits transformations, parses CSS stylesheets,
+/// and maps geometric vector paths to structured, selectable [SvgPart] units.
 class SvgParserEngine {
+  /// The resolved cascading styling stylesheet registry.
   final SvgStyleRegistry styleRegistry = SvgStyleRegistry();
+
+  /// The viewport bounds of the SVG, loaded dynamically from the `viewBox` attribute.
   Rect viewBox = Rect.zero;
 
+  /// Parses the raw SVG text asynchronously and resolves styling and selectable components.
+  /// 
+  /// Optionally registers an [externalCss] stylesheet string.
+  /// Blazing-fast setup uses a hybrid threshold: small SVGs (<50KB) parse instantly on the main thread,
+  /// while large SVGs execute inside a background isolate to keep the UI running at 120 FPS.
   Future<List<SvgPart>> parseAsync(
     String rawSvgText, {
     String? externalCss,

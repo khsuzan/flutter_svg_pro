@@ -5,16 +5,40 @@ import '../painter/svg_canvas_painter.dart';
 import '../parser/svg_parser_engine.dart';
 import '../transformer/svg_viewport_transformation.dart';
 
-enum SvgSelectionMode { single, multiple }
+/// The interactive selection behavior of [SvgProViewer].
+enum SvgSelectionMode {
+  /// Allow only a single part to be active/selected at a time.
+  single,
 
+  /// Allow multiple parts to be active/selected concurrently.
+  multiple,
+}
+
+/// A highly-optimized, interactive SVG vector graphics viewer widget for Flutter.
+/// 
+/// Automatically parses the provided raw SVG XML, extracts selectable [SvgPart] units,
+/// handles cascading style registry options, and performs pixel-perfect hit-testing 
+/// for single- or multi-part touch selections.
 class SvgProViewer extends StatefulWidget {
+  /// The raw SVG XML text string.
   final String rawSvg;
+
+  /// Optional external CSS stylesheet content to apply.
   final String? externalCss;
+
+  /// The interactive selection mode configuration (defaults to [SvgSelectionMode.single]).
   final SvgSelectionMode selectionMode;
+
+  /// Callback triggered whenever an individual part is tapped and selected.
   final Function(SvgPart component)? onPartSelected;
+
+  /// Callback triggered with the list of all currently active/selected parts.
   final Function(List<SvgPart> selectedParts)? onSelectionChanged;
+
+  /// The overlay color used to highlight selected parts.
   final Color? selectionHighlightColor;
 
+  /// Creates an interactive [SvgProViewer] with the given parameters.
   const SvgProViewer({
     super.key,
     required this.rawSvg,

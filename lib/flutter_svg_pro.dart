@@ -1,3 +1,9 @@
+/// A high-performance, interactive, and isolate-powered SVG rendering and parsing engine for Flutter.
+///
+/// Supports pixel-perfect interactive hit-testing, single/multi-selection modes,
+/// and full CSS selector/inline stylesheet cascading.
+library;
+
 export 'src/models/svg_part.dart';
 export 'src/models/drawable_path.dart';
 export 'src/models/svg_style.dart';

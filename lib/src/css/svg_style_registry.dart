@@ -2,9 +2,14 @@ import 'dart:ui';
 
 import '../models/svg_style.dart';
 
+/// A central registry for parsing, storing, and resolving SVG style selectors.
+/// 
+/// Resolves cascading styling precedence: inline style attributes override
+/// embedded stylesheet classes, which override global/default styles.
 class SvgStyleRegistry {
   final Map<String, SvgStyle> _registry = {};
 
+  /// Parses raw CSS content and registers selector rules into this stylesheet registry.
   void parseAndRegisterCss(String cssContent) {
     final noComments = cssContent.replaceAll(RegExp(r'/\*[\s\S]*?\*/'), '');
     final blockRegExp = RegExp(r'([^\{\}]+)\{([^}]+)\}');
@@ -32,6 +37,10 @@ class SvgStyleRegistry {
     }
   }
 
+  /// Resolves the final cascading [SvgStyle] for an element.
+  /// 
+  /// Merges optional stylesheet [className] properties with [inlineAttributes]
+  /// following standard CSS precedence order.
   SvgStyle resolveStyle(String? className, Map<String, String> inlineAttributes) {
     SvgStyle? baseStyle;
     if (className != null && _registry.containsKey(className)) {
