@@ -188,38 +188,38 @@ void main() {
       engine = SvgParserEngine();
     });
 
-    test('parses SVG with viewBox', () {
+    test('parses SVG with viewBox', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <rect x="10" y="10" width="50" height="50" fill="#FF0000"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(engine.viewBox, const Rect.fromLTWH(0, 0, 100, 100));
       expect(parts.length, 1);
     });
 
-    test('falls back to width/height when no viewBox', () {
+    test('falls back to width/height when no viewBox', () async {
       final svg = '''<svg width="200" height="150">
         <rect x="10" y="10" width="50" height="50"/>
       </svg>''';
-      engine.parse(svg);
+      await engine.parseAsync(svg);
       expect(engine.viewBox, const Rect.fromLTWH(0, 0, 200, 150));
     });
 
-    test('parses path elements', () {
+    test('parses path elements', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <path d="M10 10 L 50 10 L 50 50 Z" fill="#00FF00"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
       expect(parts.first.drawablePaths.length, 1);
     });
 
-    test('parses embedded style elements', () {
+    test('parses embedded style elements', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <style>.st0 { fill: #FF0000; }</style>
         <path class="st0" d="M10 10 L 50 10 L 50 50 Z"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
       expect(parts.first.drawablePaths.first.style.hasFill, true);
       expect(
@@ -228,96 +228,96 @@ void main() {
       );
     });
 
-    test('handles self-closing XML tags', () {
+    test('handles self-closing XML tags', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <path class="st0" d="M10 10 L 50 10 L 50 50 Z" />
         <circle cx="20" cy="20" r="10" />
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 2);
     });
 
-    test('parses <a> wrapper with tooltip', () {
+    test('parses <a> wrapper with tooltip', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <a onmousemove="showTooltip(evt, 'FRONT LEFT WHEEL ARCH')">
           <rect x="10" y="10" width="30" height="30" fill="#FFF"/>
         </a>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
       expect(parts.first.name, 'FRONT LEFT WHEEL ARCH');
     });
 
-    test('parses <g> groups and accumulates IDs', () {
+    test('parses <g> groups and accumulates IDs', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <g id="wheel-group">
           <rect x="10" y="10" width="30" height="30" fill="#FFF"/>
           <rect x="50" y="10" width="30" height="30" fill="#000"/>
         </g>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
       expect(parts.first.id, 'wheel-group');
       expect(parts.first.drawablePaths.length, 2);
     });
 
-    test('parses circle elements', () {
+    test('parses circle elements', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="40" fill="#00F"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
     });
 
-    test('parses ellipse elements', () {
+    test('parses ellipse elements', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <ellipse cx="50" cy="50" rx="40" ry="20" fill="#F00"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
     });
 
-    test('parses polygon elements', () {
+    test('parses polygon elements', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <polygon points="10,10 50,50 10,50" fill="#0F0"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
     });
 
-    test('parses polyline elements', () {
+    test('parses polyline elements', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <polyline points="10,10 50,50 90,10" fill="none" stroke="#000"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
     });
 
-    test('parses matrix transform', () {
+    test('parses matrix transform', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <g transform="matrix(1 0 0 1 20 30)">
           <rect x="0" y="0" width="10" height="10" fill="#F00"/>
         </g>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
       expect(parts.first.drawablePaths.length, 1);
     });
 
-    test('parses translate transform', () {
+    test('parses translate transform', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <rect transform="translate(10, 20)" x="0" y="0" width="10" height="10" fill="#F00"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 1);
     });
 
-    test('applies external CSS', () {
+    test('applies external CSS', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <rect class="ext" x="10" y="10" width="50" height="50"/>
       </svg>''';
       final externalCss = '.ext { fill: #FF8800; stroke: #000; }';
-      final parts = engine.parse(svg, externalCss: externalCss);
+      final parts = await engine.parseAsync(svg, externalCss: externalCss);
       expect(parts.length, 1);
       expect(parts.first.drawablePaths.first.style.hasFill, true);
       expect(
@@ -326,20 +326,20 @@ void main() {
       );
     });
 
-    test('handles invalid path data gracefully', () {
+    test('handles invalid path data gracefully', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <path d="NOT A VALID PATH" />
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts, isEmpty);
     });
 
-    test('assigns auto-generated IDs to unnamed parts', () {
+    test('assigns auto-generated IDs to unnamed parts', () async {
       final svg = '''<svg viewBox="0 0 100 100">
         <rect x="10" y="10" width="30" height="30" fill="#F00"/>
         <rect x="50" y="10" width="30" height="30" fill="#0F0"/>
       </svg>''';
-      final parts = engine.parse(svg);
+      final parts = await engine.parseAsync(svg);
       expect(parts.length, 2);
       expect(parts[0].id, 'part_0');
       expect(parts[1].id, 'part_1');
@@ -357,7 +357,7 @@ void main() {
       final part = SvgPart(id: 'test', name: 'test', drawablePaths: [drawable]);
       final painter = SvgCanvasPainter(
         parts: [part],
-        selectedId: null,
+        selectedIds: {},
         viewBox: const Rect.fromLTWH(0, 0, 100, 100),
         highlightColor: const Color(0x802196F3),
       );
@@ -370,16 +370,16 @@ void main() {
       expect(painter.shouldRepaint(painter), false);
     });
 
-    test('repaints when selectedId changes', () {
+    test('repaints when selectedIds changes', () {
       final painter1 = SvgCanvasPainter(
         parts: [],
-        selectedId: 'a',
+        selectedIds: {'a'},
         viewBox: Rect.zero,
         highlightColor: const Color(0x802196F3),
       );
       final painter2 = SvgCanvasPainter(
         parts: [],
-        selectedId: 'b',
+        selectedIds: {'b'},
         viewBox: Rect.zero,
         highlightColor: const Color(0x802196F3),
       );
@@ -389,19 +389,13 @@ void main() {
     test('does not repaint when nothing changes', () {
       final painter1 = SvgCanvasPainter(
         parts: [],
-        selectedId: null,
-        viewBox: Rect.zero,
-        highlightColor: const Color(0x802196F3),
-      );
-      final painter2 = SvgCanvasPainter(
-        parts: [],
-        selectedId: null,
+        selectedIds: {},
         viewBox: Rect.zero,
         highlightColor: const Color(0x802196F3),
       );
       expect(painter1.shouldRepaint(SvgCanvasPainter(
         parts: painter1.parts,
-        selectedId: painter1.selectedId,
+        selectedIds: painter1.selectedIds,
         viewBox: painter1.viewBox,
         highlightColor: painter1.highlightColor,
       )), false);

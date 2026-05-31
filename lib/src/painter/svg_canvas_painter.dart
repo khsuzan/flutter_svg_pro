@@ -5,13 +5,13 @@ import '../transformer/svg_viewport_transformation.dart';
 
 class SvgCanvasPainter extends CustomPainter {
   final List<SvgPart> parts;
-  final String? selectedId;
+  final Set<String> selectedIds;
   final Rect viewBox;
   final Color highlightColor;
 
   SvgCanvasPainter({
     required this.parts,
-    required this.selectedId,
+    required this.selectedIds,
     required this.viewBox,
     required this.highlightColor,
   });
@@ -28,7 +28,7 @@ class SvgCanvasPainter extends CustomPainter {
     canvas.translate(-viewBox.left, -viewBox.top);
 
     for (var part in parts) {
-      final isSelected = part.id == selectedId;
+      final isSelected = selectedIds.contains(part.id);
 
       for (var drawable in part.drawablePaths) {
         if (drawable.style.hasFill) {
@@ -52,6 +52,9 @@ class SvgCanvasPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant SvgCanvasPainter oldDelegate) {
-    return oldDelegate.selectedId != selectedId || oldDelegate.parts != parts;
+    if (oldDelegate.parts != parts) return true;
+    if (oldDelegate.selectedIds.length != selectedIds.length) return true;
+    if (oldDelegate.selectedIds.any((id) => !selectedIds.contains(id))) return true;
+    return false;
   }
 }

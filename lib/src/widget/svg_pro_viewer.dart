@@ -5,17 +5,23 @@ import '../painter/svg_canvas_painter.dart';
 import '../parser/svg_parser_engine.dart';
 import '../transformer/svg_viewport_transformation.dart';
 
+enum SvgSelectionMode { single, multiple }
+
 class SvgProViewer extends StatefulWidget {
   final String rawSvg;
   final String? externalCss;
+  final SvgSelectionMode selectionMode;
   final Function(SvgPart component)? onPartSelected;
+  final Function(List<SvgPart> selectedParts)? onSelectionChanged;
   final Color? selectionHighlightColor;
 
   const SvgProViewer({
     super.key,
     required this.rawSvg,
     this.externalCss,
+    this.selectionMode = SvgSelectionMode.single,
     this.onPartSelected,
+    this.onSelectionChanged,
     this.selectionHighlightColor,
   });
 
@@ -26,7 +32,7 @@ class SvgProViewer extends StatefulWidget {
 class _SvgProViewerState extends State<SvgProViewer> {
   SvgParserEngine? _parserEngine;
   List<SvgPart>? _parsedComponents;
-  String? _selectedComponentId;
+  final Set<String> _selectedComponentIds = {};
 
   @override
   void initState() {
@@ -61,11 +67,28 @@ class _SvgProViewerState extends State<SvgProViewer> {
     for (var component in _parsedComponents!.reversed) {
       for (var drawable in component.drawablePaths) {
         if (drawable.path.contains(vectorSpaceOffset)) {
-          setState(() {
-            _selectedComponentId = component.id;
-          });
-          if (widget.onPartSelected != null) {
-            widget.onPartSelected!(component);
+          switch (widget.selectionMode) {
+            case SvgSelectionMode.single:
+              setState(() {
+                _selectedComponentIds
+                  ..clear()
+                  ..add(component.id);
+              });
+              widget.onPartSelected?.call(component);
+              widget.onSelectionChanged?.call([component]);
+
+            case SvgSelectionMode.multiple:
+              setState(() {
+                if (_selectedComponentIds.contains(component.id)) {
+                  _selectedComponentIds.remove(component.id);
+                } else {
+                  _selectedComponentIds.add(component.id);
+                }
+              });
+              final selectedParts = _parsedComponents!
+                  .where((p) => _selectedComponentIds.contains(p.id))
+                  .toList();
+              widget.onSelectionChanged?.call(selectedParts);
           }
           return;
         }
@@ -94,7 +117,7 @@ class _SvgProViewerState extends State<SvgProViewer> {
               size: Size(constraints.maxWidth, constraints.maxHeight),
               painter: SvgCanvasPainter(
                 parts: _parsedComponents!,
-                selectedId: _selectedComponentId,
+                selectedIds: Set.of(_selectedComponentIds),
                 viewBox: _parserEngine!.viewBox,
                 highlightColor: widget.selectionHighlightColor ?? const Color(0x802196F3),
               ),
