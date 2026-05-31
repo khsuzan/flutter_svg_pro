@@ -30,6 +30,17 @@ Whether you are building interactive car part diagrams (e.g. for damage reportin
 
 ---
 
+## Why Flutter SVG Pro? 
+
+Standard packages (like `flutter_svg`) are designed purely for **static image rendering**. If you need to make individual parts of your SVG interactive (e.g. tapping a specific car fender, a province on a map, or a muscle group on a body diagram), static renderers fall short:
+1. They render the SVG as a single flattened canvas, making it impossible to listen to individual path events.
+2. They do not maintain dynamic, isolated state layers for individual vector sub-elements.
+3. They cannot dynamically resolve interactive CSS state overlays (such as select highlights).
+
+**Flutter SVG Pro is built specifically to solve this.** It parses and retains the full semantic structure of your SVGs, giving you absolute control over selection states, styling, and hit-testing on a per-element basis.
+
+---
+
 ## Key Features
 
 * 🖱️ **Interactive Hit Testing**: Tap-to-select specific regions, paths, or groupings with coordinate mapping. Includes custom highlight overlay effects.
