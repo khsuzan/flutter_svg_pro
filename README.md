@@ -58,7 +58,7 @@ Add this to your Dart package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_svg_pro: ^1.0.0-beta
+  flutter_svg_pro: ^1.0.0
 ```
 
 Then, run `flutter pub get` in your terminal.

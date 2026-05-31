@@ -7,7 +7,7 @@ import 'package:xml/xml.dart';
 void main() {
   test('benchmark', () async {
     final rawSvgText = File('assets/car-front.svg').readAsStringSync();
-    
+
     final t1 = Stopwatch()..start();
     await compute(XmlDocument.parse, rawSvgText);
     t1.stop();

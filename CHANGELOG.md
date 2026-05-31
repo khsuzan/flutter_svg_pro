@@ -1,3 +1,9 @@
+## 1.0.0
+
+* Official stable release of `flutter_svg_pro` with fully documented, 100% compliant pub.dev scoring API.
+* Optimized dependency constraints (xml and vector_math) for maximum compatibility with the latest Flutter ecosystems.
+* Resolved deprecation warnings, switching to modern `withValues` and `toARGB32` APIs.
+
 ## 1.0.0-beta
 
 * Initial beta release of `flutter_svg_pro`.
