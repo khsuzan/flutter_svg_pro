@@ -9,7 +9,7 @@ void main() {
     final rawSvgText = File('assets/car-front.svg').readAsStringSync();
     
     final t1 = Stopwatch()..start();
-    final document = await compute(XmlDocument.parse, rawSvgText);
+    await compute(XmlDocument.parse, rawSvgText);
     t1.stop();
     print('XmlDocument.parse took: ${t1.elapsedMilliseconds}ms');
 

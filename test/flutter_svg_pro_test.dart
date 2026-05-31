@@ -90,7 +90,7 @@ void main() {
       registry.parseAndRegisterCss('.custom { fill: #AABBCC; }');
       final style = registry.resolveStyle('custom', {});
       expect(style.hasFill, true);
-      expect(style.fillPaint?.color.value, 0xFFAABBCC);
+      expect(style.fillPaint?.color.toARGB32(), 0xFFAABBCC);
     });
 
     test('handles fill none', () {
@@ -139,8 +139,8 @@ void main() {
       registry
         ..parseAndRegisterCss('.a { fill: #111; }')
         ..parseAndRegisterCss('.b { fill: #222; stroke: #333; }');
-      expect(registry.resolveStyle('a', {}).fillPaint?.color.value, 0xFF111111);
-      expect(registry.resolveStyle('b', {}).fillPaint?.color.value, 0xFF222222);
+      expect(registry.resolveStyle('a', {}).fillPaint?.color.toARGB32(), 0xFF111111);
+      expect(registry.resolveStyle('b', {}).fillPaint?.color.toARGB32(), 0xFF222222);
       expect(registry.resolveStyle('b', {}).hasStroke, true);
     });
   });
@@ -321,7 +321,7 @@ void main() {
       expect(parts.length, 1);
       expect(parts.first.drawablePaths.first.style.hasFill, true);
       expect(
-        parts.first.drawablePaths.first.style.fillPaint?.color.value,
+        parts.first.drawablePaths.first.style.fillPaint?.color.toARGB32(),
         0xFFFF8800,
       );
     });

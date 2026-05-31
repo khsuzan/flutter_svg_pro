@@ -94,8 +94,8 @@ class SvgStyleRegistry {
     }
 
     if (opacity < 1.0) {
-      fill = fill.withOpacity(opacity);
-      stroke = stroke.withOpacity(opacity);
+      fill = fill.withValues(alpha: opacity);
+      stroke = stroke.withValues(alpha: opacity);
     }
 
     return SvgStyle(
@@ -175,8 +175,8 @@ class SvgStyleRegistry {
     }
 
     if (opacity < 1.0) {
-      fillColor = fillColor.withOpacity(opacity);
-      strokeColor = strokeColor.withOpacity(opacity);
+      fillColor = fillColor.withValues(alpha: opacity);
+      strokeColor = strokeColor.withValues(alpha: opacity);
     }
 
     return SvgStyle(
