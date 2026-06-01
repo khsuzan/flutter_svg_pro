@@ -200,7 +200,7 @@ class _InteractiveSvgScreenState extends State<InteractiveSvgScreen> {
                   Text(
                     _selectedPartIds.isNotEmpty
                         ? 'সিলেক্টেড পার্টস: $_selectionInfo'
-                        : 'গাড়ির যেকোনো পার্টে টাচ করে সিলেক্ট করুন!',
+                        : 'যেকোনো বডি পার্টে টাচ করে সিলেক্ট করুন!',
                     style: const TextStyle(fontSize: 14, height: 1.4),
                   ),
                 ],

@@ -47,73 +47,81 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter SVG Pro Demo')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                const Text('Mode: '),
-                SegmentedButton<SvgSelectionMode>(
-                  segments: const [
-                    ButtonSegment(value: SvgSelectionMode.single, label: Text('Single')),
-                    ButtonSegment(value: SvgSelectionMode.multiple, label: Text('Multiple')),
-                  ],
-                  selected: {_mode},
-                  onSelectionChanged: (set) {
-                    setState(() {
-                      _mode = set.first;
-                      _selectionInfo = '';
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: FutureBuilder<Map<String, String>>(
-                future: _assetsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error loading assets: ${snapshot.error}'),
-                    );
-                  }
-
-                  final data = snapshot.data!;
-                  return SvgProViewer(
-                    rawSvg: data['svg']!,
-                    externalCss: data['css'],
-                    selectionMode: _mode,
-                    selectionHighlightColor: const Color(0x804CAF50),
-                    onPartSelected: (component) {
-                      debugPrint('Selected: ${component.name}');
-                    },
-                    onSelectionChanged: (parts) {
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const Text('Mode: '),
+                  SegmentedButton<SvgSelectionMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: SvgSelectionMode.single,
+                        label: Text('Single'),
+                      ),
+                      ButtonSegment(
+                        value: SvgSelectionMode.multiple,
+                        label: Text('Multiple'),
+                      ),
+                    ],
+                    selected: {_mode},
+                    onSelectionChanged: (set) {
                       setState(() {
-                        _selectionInfo = parts.map((p) => p.name).join(', ');
+                        _mode = set.first;
+                        _selectionInfo = '';
                       });
                     },
-                  );
-                },
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 20,
-              child: Text(
-                _selectionInfo.isNotEmpty
-                    ? 'Selected: $_selectionInfo'
-                    : 'Tap on car parts to select them',
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 8),
+              Expanded(
+                child: FutureBuilder<Map<String, String>>(
+                  future: _assetsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error loading assets: ${snapshot.error}'),
+                      );
+                    }
+
+                    final data = snapshot.data!;
+                    return SvgProViewer(
+                      rawSvg: data['svg']!,
+                      externalCss: data['css'],
+                      selectionMode: _mode,
+                      selectionHighlightColor: const Color(0x804CAF50),
+                      onPartSelected: (component) {
+                        debugPrint('Selected: ${component.name}');
+                      },
+                      onSelectionChanged: (parts) {
+                        setState(() {
+                          _selectionInfo = parts.map((p) => p.name).join(', ');
+                        });
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 20,
+                child: Text(
+                  _selectionInfo.isNotEmpty
+                      ? 'Selected: $_selectionInfo'
+                      : 'Tap on body parts to select them',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

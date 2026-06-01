@@ -200,7 +200,7 @@ class _InteractiveSvgScreenState extends State<InteractiveSvgScreen> {
                   Text(
                     _selectedPartIds.isNotEmpty
                         ? 'Selected Components: $_selectionInfo'
-                        : 'Tap on any car parts above to select them!',
+                        : 'Tap on any body parts above to select them!',
                     style: const TextStyle(fontSize: 14, height: 1.4),
                   ),
                 ],

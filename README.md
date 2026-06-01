@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://pub.dev/packages/flutter_svg_pro">
-    <img src="https://img.shields.io/badge/pub-v1.0.0--beta-blue.svg?style=flat-square" alt="Pub Version" />
+    <img src="https://img.shields.io/badge/pub-v1.0.0-blue.svg?style=flat-square" alt="Pub Version" />
   </a>
   <a href="https://github.com/khsuzan/flutter_svg_pro">
     <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="MIT License" />
@@ -18,6 +18,20 @@
   <a href="https://flutter.dev">
     <img src="https://img.shields.io/badge/platform-flutter-blue.svg?style=flat-square" alt="Platform Support" />
   </a>
+</p>
+
+---
+
+## Example Screenshots
+
+<p align="center">
+  <img src="https://github.com/khsuzan/flutter_svg_pro/raw/main/assets/Screenshot_2026-06-01-08-43-49-055_com.example.flutter_svg_pro_example.jpg" width="350" alt="Single Selection Mode" />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/khsuzan/flutter_svg_pro/raw/main/assets/Screenshot_2026-06-01-08-44-23-884_com.example.flutter_svg_pro_example.jpg" width="350" alt="Multiple Selection Mode" />
+</p>
+
+<p align="center">
+  <i>Left: Single Selection Mode &nbsp;&bull;&nbsp; Right: Multiple Selection Mode</i>
 </p>
 
 ---
@@ -100,7 +114,7 @@ class SvgDemoPage extends StatefulWidget {
 
 class _SvgDemoPageState extends State<SvgDemoPage> {
   SvgSelectionMode _mode = SvgSelectionMode.single;
-  String _selectionInfo = 'Tap on parts to select them';
+  String _selectionInfo = 'Tap on body parts to select them';
   
   // Future to load SVG and CSS raw string data
   late Future<Map<String, String>> _loadFuture;
@@ -139,7 +153,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                   onSelectionChanged: (set) {
                     setState(() {
                       _mode = set.first;
-                      _selectionInfo = 'Tap on parts to select them';
+                      _selectionInfo = 'Tap on body parts to select them';
                     });
                   },
                 ),
@@ -172,7 +186,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                       setState(() {
                         _selectionInfo = selectedParts.isNotEmpty
                             ? 'Selected: ${selectedParts.map((p) => p.name).join(', ')}'
-                            : 'Tap on parts to select them';
+                            : 'Tap on body parts to select them';
                       });
                     },
                   );
