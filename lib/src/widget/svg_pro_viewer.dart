@@ -75,7 +75,7 @@ class _SvgProViewerState extends State<SvgProViewer> {
     }
   }
 
-  void _processTapEvent(Offset globalOffset, BoxConstraints limits) {
+  void _processTapEvent(Offset globalOffset) {
     if (_parserEngine == null || _parsedComponents == null) return;
 
     final renderBox = context.findRenderObject() as RenderBox;
@@ -83,12 +83,13 @@ class _SvgProViewerState extends State<SvgProViewer> {
 
     final viewportTransformer = SvgViewportTransformation(
       viewBox: _parserEngine!.viewBox,
-      canvasLayoutSize: Size(limits.maxWidth, limits.maxHeight),
+      canvasLayoutSize: renderBox.size,
     );
 
     final vectorSpaceOffset = viewportTransformer.screenToVectorSpace(localLayoutOffset);
 
     for (var component in _parsedComponents!.reversed) {
+      if (!component.isSelectable) continue;
       for (var drawable in component.drawablePaths) {
         if (drawable.path.contains(vectorSpaceOffset)) {
           switch (widget.selectionMode) {
@@ -136,7 +137,7 @@ class _SvgProViewerState extends State<SvgProViewer> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           return GestureDetector(
-            onTapUp: (details) => _processTapEvent(details.globalPosition, constraints),
+            onTapUp: (details) => _processTapEvent(details.globalPosition),
             child: CustomPaint(
               size: Size(constraints.maxWidth, constraints.maxHeight),
               painter: SvgCanvasPainter(

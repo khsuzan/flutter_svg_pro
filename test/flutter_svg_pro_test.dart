@@ -344,6 +344,27 @@ void main() {
       expect(parts[0].id, 'part_0');
       expect(parts[1].id, 'part_1');
     });
+
+    test('distinguishes selectable and non-selectable parts based on explicit ID presence', () async {
+      final svg = '''<svg viewBox="0 0 100 100">
+        <g id="SELECTABLE_GROUP">
+          <rect x="10" y="10" width="30" height="30" fill="#F00"/>
+        </g>
+        <rect x="50" y="10" width="30" height="30" fill="#0F0"/>
+        <path id="SELECTABLE_PATH" d="M0 0 L10 10" />
+      </svg>''';
+      final parts = await engine.parseAsync(svg);
+      expect(parts.length, 3);
+      
+      final selectableGroup = parts.firstWhere((p) => p.id == 'SELECTABLE_GROUP');
+      expect(selectableGroup.isSelectable, true);
+
+      final nonSelectableRect = parts.firstWhere((p) => p.id.startsWith('part_'));
+      expect(nonSelectableRect.isSelectable, false);
+
+      final selectablePath = parts.firstWhere((p) => p.id == 'SELECTABLE_PATH');
+      expect(selectablePath.isSelectable, true);
+    });
   });
 
   group('SvgCanvasPainter', () {

@@ -67,6 +67,7 @@ class SvgParserEngine {
     for (var rawPart in rawParts) {
       final id = rawPart['id'] as String;
       final name = rawPart['name'] as String;
+      final isSelectable = rawPart['isSelectable'] as bool? ?? true;
       final drawablePaths = <DrawablePath>[];
 
       for (var rawPath in rawPart['paths']) {
@@ -99,7 +100,12 @@ class SvgParserEngine {
 
       if (drawablePaths.isNotEmpty) {
         discoveredParts.add(
-          SvgPart(id: id, name: name, drawablePaths: drawablePaths),
+          SvgPart(
+            id: id,
+            name: name,
+            drawablePaths: drawablePaths,
+            isSelectable: isSelectable,
+          ),
         );
       }
     }
@@ -192,6 +198,7 @@ void _traverseIsolateNode(
     }
 
     if (_isGeometricPrimitive(child.name.local)) {
+      final hasExplicitId = child.getAttribute('id') != null || currentPartId != null;
       final id =
           child.getAttribute('id') ??
           currentPartId ??
@@ -217,10 +224,14 @@ void _traverseIsolateNode(
       final existingPartIndex = partsCollector.indexWhere((p) => p['id'] == id);
       if (existingPartIndex != -1) {
         (partsCollector[existingPartIndex]['paths'] as List).add(pathMap);
+        if (hasExplicitId) {
+          partsCollector[existingPartIndex]['isSelectable'] = true;
+        }
       } else {
         partsCollector.add({
           'id': id,
           'name': name,
+          'isSelectable': hasExplicitId,
           'paths': [pathMap],
         });
       }

@@ -16,11 +16,15 @@ class SvgPart {
   /// Optional metadata extracted from attributes of this SVG part.
   final Map<String, String> metadata;
 
-  /// Creates a new [SvgPart] with the given [id], [name], [drawablePaths], and optional [metadata].
+  /// Whether this part is interactive and selectable.
+  final bool isSelectable;
+
+  /// Creates a new [SvgPart] with the given [id], [name], [drawablePaths], [isSelectable], and optional [metadata].
   SvgPart({
     required this.id,
     required this.name,
     required this.drawablePaths,
     this.metadata = const {},
+    this.isSelectable = true,
   });
 }

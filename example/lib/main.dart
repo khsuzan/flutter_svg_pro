@@ -77,36 +77,34 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                 ],
               ),
               const SizedBox(height: 8),
-              Expanded(
-                child: FutureBuilder<Map<String, String>>(
-                  future: _assetsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Error loading assets: ${snapshot.error}'),
-                      );
-                    }
-
-                    final data = snapshot.data!;
-                    return SvgProViewer(
-                      rawSvg: data['svg']!,
-                      externalCss: data['css'],
-                      selectionMode: _mode,
-                      selectionHighlightColor: const Color(0x804CAF50),
-                      onPartSelected: (component) {
-                        debugPrint('Selected: ${component.name}');
-                      },
-                      onSelectionChanged: (parts) {
-                        setState(() {
-                          _selectionInfo = parts.map((p) => p.name).join(', ');
-                        });
-                      },
+              FutureBuilder<Map<String, String>>(
+                future: _assetsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error loading assets: ${snapshot.error}'),
                     );
-                  },
-                ),
+                  }
+
+                  final data = snapshot.data!;
+                  return SvgProViewer(
+                    rawSvg: data['svg']!,
+                    externalCss: data['css'],
+                    selectionMode: _mode,
+                    selectionHighlightColor: const Color(0x804CAF50),
+                    onPartSelected: (component) {
+                      debugPrint('Selected: ${component.name}');
+                    },
+                    onSelectionChanged: (parts) {
+                      setState(() {
+                        _selectionInfo = parts.map((p) => p.name).join(', ');
+                      });
+                    },
+                  );
+                },
               ),
               const SizedBox(height: 8),
               SizedBox(
