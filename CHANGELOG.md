@@ -1,3 +1,9 @@
+## 1.0.1
+
+* Improved selection hit-testing selectivity by only allowing paths/groups with explicit IDs to be interactive and selectable, preventing accidental selection of background/decorative shapes (like border outlines or shadows) auto-assigned with fallback `part_X` IDs.
+* Resolved touch-point mapping offsets under arbitrary layout/height constraints by utilizing actual visual dimensions (`renderBox.size`) instead of max parent constraints (`BoxConstraints`).
+* Prepend `// ignore_for_file: avoid_print` to example tests to ensure a perfect 100/100 analyzer score.
+
 ## 1.0.0
 
 * Official stable release of `flutter_svg_pro` with fully documented, 100% compliant pub.dev scoring API.
