@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:xml/xml.dart';
 import 'package:vector_math/vector_math_64.dart';
@@ -152,9 +153,27 @@ Map<String, dynamic> _parseSvgIsolateBody(Map<String, dynamic> params) {
   final styleElements = document.findAllElements('style');
   final cssRules = styleElements.map((el) => el.innerText).toList();
 
-  // 3. Traverse XML nodes recursively
+  // 3. Collect defs for <use> tags
+  final defsMap = <String, XmlElement>{};
+  for (var element in document.findAllElements('*')) {
+    final id = element.getAttribute('id');
+    if (id != null) defsMap[id] = element;
+  }
+
+  // 4. Root transforms
+  var rootTransformAttr = svgRoot.getAttribute('transform');
+  final rootStyleAttr = svgRoot.getAttribute('style');
+  if (rootStyleAttr != null && rootStyleAttr.contains('transform:')) {
+    final cssTransformMatch = RegExp(r'transform:\s*([^;]+)').firstMatch(rootStyleAttr);
+    if (cssTransformMatch != null) {
+      rootTransformAttr = (rootTransformAttr == null ? '' : rootTransformAttr + ' ') + cssTransformMatch.group(1)!;
+    }
+  }
+  final rootTransform = _parseTransform(rootTransformAttr);
+
+  // 5. Traverse XML nodes recursively
   final parts = <Map<String, dynamic>>[];
-  _traverseIsolateNode(svgRoot, Matrix4.identity(), null, null, parts);
+  _traverseIsolateNode(svgRoot, rootTransform, null, null, parts, defsMap);
 
   return {'viewBox': viewBoxCoords, 'cssRules': cssRules, 'parts': parts};
 }
@@ -165,12 +184,49 @@ void _traverseIsolateNode(
   String? currentPartId,
   String? currentPartName,
   List<Map<String, dynamic>> partsCollector,
+  Map<String, XmlElement> defsMap,
 ) {
   for (var child in node.children) {
     if (child is! XmlElement) continue;
 
-    final localTransform = _parseTransform(child.getAttribute('transform'));
+    var transformAttr = child.getAttribute('transform');
+    final styleAttr = child.getAttribute('style');
+    if (styleAttr != null && styleAttr.contains('transform:')) {
+      final cssTransformMatch = RegExp(r'transform:\s*([^;]+)').firstMatch(styleAttr);
+      if (cssTransformMatch != null) {
+        transformAttr = (transformAttr == null ? '' : transformAttr + ' ') + cssTransformMatch.group(1)!;
+      }
+    }
+
+    final localTransform = _parseTransform(transformAttr);
     final accumulatedTransform = inheritedTransform * localTransform;
+
+    if (child.name.local == 'use') {
+      final href = child.getAttribute('href') ?? child.getAttribute('xlink:href');
+      if (href != null && href.startsWith('#')) {
+        final targetId = href.substring(1);
+        final targetElement = defsMap[targetId];
+        if (targetElement != null) {
+          final useX = double.tryParse(child.getAttribute('x') ?? '0') ?? 0.0;
+          final useY = double.tryParse(child.getAttribute('y') ?? '0') ?? 0.0;
+          final useTransform = accumulatedTransform.clone();
+          if (useX != 0.0 || useY != 0.0) {
+            useTransform.multiply(Matrix4.translationValues(useX, useY, 0.0));
+          }
+          final dummyGroup = XmlElement(XmlName('g'));
+          dummyGroup.children.add(targetElement.copy());
+          _traverseIsolateNode(
+            dummyGroup,
+            useTransform,
+            child.getAttribute('id') ?? currentPartId,
+            currentPartName,
+            partsCollector,
+            defsMap,
+          );
+        }
+      }
+      continue;
+    }
 
     if (child.name.local == 'a') {
       final mouseMoveAttr = child.getAttribute('onmousemove') ?? '';
@@ -181,6 +237,7 @@ void _traverseIsolateNode(
         currentPartId,
         extractedName,
         partsCollector,
+        defsMap,
       );
       continue;
     }
@@ -193,6 +250,7 @@ void _traverseIsolateNode(
         groupId ?? currentPartId,
         currentPartName,
         partsCollector,
+        defsMap,
       );
       continue;
     }
@@ -253,6 +311,7 @@ bool _isGeometricPrimitive(String tagName) {
     'ellipse',
     'polygon',
     'polyline',
+    'line',
   ].contains(tagName);
 }
 
@@ -263,6 +322,13 @@ String? _convertPrimitiveToPathData(XmlElement element) {
       final d = element.getAttribute('d') ?? '';
       if (d.trim().isEmpty) return null;
       return d;
+    }
+    if (type == 'line') {
+      final x1 = double.tryParse(element.getAttribute('x1') ?? '0') ?? 0.0;
+      final y1 = double.tryParse(element.getAttribute('y1') ?? '0') ?? 0.0;
+      final x2 = double.tryParse(element.getAttribute('x2') ?? '0') ?? 0.0;
+      final y2 = double.tryParse(element.getAttribute('y2') ?? '0') ?? 0.0;
+      return 'M $x1 $y1 L $x2 $y2';
     }
     if (type == 'rect') {
       final x = double.tryParse(element.getAttribute('x') ?? '0') ?? 0.0;
@@ -311,97 +377,66 @@ String? _convertPrimitiveToPathData(XmlElement element) {
 Matrix4 _parseTransform(String? transformAttr) {
   if (transformAttr == null || transformAttr.isEmpty) return Matrix4.identity();
 
-  if (transformAttr.startsWith('matrix')) {
-    try {
-      final cleanValues = transformAttr
-          .replaceAll('matrix(', '')
-          .replaceAll(')', '')
-          .split(RegExp(r'[\s,]+'))
-          .where((s) => s.isNotEmpty)
-          .map((s) => double.tryParse(s))
-          .whereType<double>()
-          .toList();
-      if (cleanValues.length == 6) {
-        return Matrix4(
-          cleanValues[0],
-          cleanValues[1],
-          0,
-          0,
-          cleanValues[2],
-          cleanValues[3],
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          cleanValues[4],
-          cleanValues[5],
-          0,
-          1,
+  final m = Matrix4.identity();
+  final regExp = RegExp(r'(matrix|translate|scale|rotate|skewX|skewY)\s*\(([^)]*)\)');
+  final matches = regExp.allMatches(transformAttr);
+
+  for (final match in matches) {
+    final type = match.group(1);
+    // Replace minus signs with " -" to handle compressed SVGs like translate(100-200)
+    // using (?<![eE]) to prevent breaking scientific notation like 1e-5
+    final argsStr = (match.group(2) ?? '').replaceAll(RegExp(r'(?<![eE])-'), ' -');
+    final args = argsStr
+        .split(RegExp(r'[\s,]+'))
+        .where((s) => s.isNotEmpty)
+        .map((s) => double.tryParse(s))
+        .whereType<double>()
+        .toList();
+
+    if (type == 'matrix') {
+      if (args.length >= 6) {
+        final matrix = Matrix4(
+          args[0], args[1], 0, 0,
+          args[2], args[3], 0, 0,
+          0, 0, 1, 0,
+          args[4], args[5], 0, 1,
         );
+        m.multiply(matrix);
       }
-    } catch (_) {}
-  }
-
-  if (transformAttr.startsWith('translate')) {
-    try {
-      final cleanValues = transformAttr
-          .replaceAll('translate(', '')
-          .replaceAll(')', '')
-          .split(RegExp(r'[\s,]+'))
-          .where((s) => s.isNotEmpty)
-          .map((s) => double.tryParse(s))
-          .whereType<double>()
-          .toList();
-      final tx = cleanValues.isNotEmpty ? cleanValues[0] : 0.0;
-      final ty = cleanValues.length > 1 ? cleanValues[1] : 0.0;
-      final m = Matrix4.identity();
-      m.setTranslationRaw(tx, ty, 0);
-      return m;
-    } catch (_) {}
-  }
-
-  if (transformAttr.startsWith('scale')) {
-    try {
-      final cleanValues = transformAttr
-          .replaceAll('scale(', '')
-          .replaceAll(')', '')
-          .split(RegExp(r'[\s,]+'))
-          .where((s) => s.isNotEmpty)
-          .map((s) => double.tryParse(s))
-          .whereType<double>()
-          .toList();
-      final sx = cleanValues.isNotEmpty ? cleanValues[0] : 1.0;
-      final sy = cleanValues.length > 1 ? cleanValues[1] : sx;
-      return Matrix4.diagonal3Values(sx, sy, 1);
-    } catch (_) {}
-  }
-
-  if (transformAttr.startsWith('rotate')) {
-    try {
-      final cleanValues = transformAttr
-          .replaceAll('rotate(', '')
-          .replaceAll(')', '')
-          .split(RegExp(r'[\s,]+'))
-          .where((s) => s.isNotEmpty)
-          .map((s) => double.tryParse(s))
-          .whereType<double>()
-          .toList();
-      final a = cleanValues.isNotEmpty ? cleanValues[0] : 0.0;
-      final cx = cleanValues.length > 1 ? cleanValues[1] : 0.0;
-      final cy = cleanValues.length > 2 ? cleanValues[2] : 0.0;
-      final m = Matrix4.identity();
+    } else if (type == 'translate') {
+      final tx = args.isNotEmpty ? args[0] : 0.0;
+      final ty = args.length > 1 ? args[1] : 0.0;
+      final trans = Matrix4.identity()..setTranslationRaw(tx, ty, 0);
+      m.multiply(trans);
+    } else if (type == 'scale') {
+      final sx = args.isNotEmpty ? args[0] : 1.0;
+      final sy = args.length > 1 ? args[1] : sx;
+      m.multiply(Matrix4.diagonal3Values(sx, sy, 1));
+    } else if (type == 'rotate') {
+      final a = args.isNotEmpty ? args[0] : 0.0;
+      final cx = args.length > 1 ? args[1] : 0.0;
+      final cy = args.length > 2 ? args[2] : 0.0;
+      final rot = Matrix4.identity();
       if (cx != 0.0 || cy != 0.0) {
-        m.multiply(Matrix4.translationValues(cx, cy, 0.0));
-        m.rotateZ(a * 3.1415926535897932 / 180.0);
-        m.multiply(Matrix4.translationValues(-cx, -cy, 0.0));
+        rot.multiply(Matrix4.translationValues(cx, cy, 0.0));
+        rot.rotateZ(a * math.pi / 180.0);
+        rot.multiply(Matrix4.translationValues(-cx, -cy, 0.0));
       } else {
-        m.rotateZ(a * 3.1415926535897932 / 180.0);
+        rot.rotateZ(a * math.pi / 180.0);
       }
-      return m;
-    } catch (_) {}
+      m.multiply(rot);
+    } else if (type == 'skewX') {
+      final a = args.isNotEmpty ? args[0] : 0.0;
+      final skew = Matrix4.identity();
+      skew.setEntry(0, 1, math.tan(a * math.pi / 180.0));
+      m.multiply(skew);
+    } else if (type == 'skewY') {
+      final a = args.isNotEmpty ? args[0] : 0.0;
+      final skew = Matrix4.identity();
+      skew.setEntry(1, 0, math.tan(a * math.pi / 180.0));
+      m.multiply(skew);
+    }
   }
 
-  return Matrix4.identity();
+  return m;
 }
