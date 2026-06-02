@@ -1,3 +1,13 @@
+## 1.0.3
+
+* Enhanced `SvgParserEngine` to robustly parse multiple chained transformation commands (e.g., `rotate(...) translate(...)`).
+* Introduced support for parsing CSS-based `transform:` styles directly from elements.
+* Added geometric mapping support for the basic `<line>` SVG primitive.
+* Implemented parsing and execution of `<use>` tags mapped from `<defs>` and explicitly declared elements.
+* Enhanced resilience against minified SVGs using negative numbers without spaces in transformations (e.g. `translate(100-200)`).
+* Added matrix support for `skewX` and `skewY` attributes.
+* Root `<svg>` transformations are now evaluated and propagated to the vector tree correctly.
+
 ## 1.0.2
 
 * Updated `SvgStyleRegistry` to correctly merge optional stylesheet classes properties with inline attributes following standard CSS precedence order.
