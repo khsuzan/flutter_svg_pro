@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://pub.dev/packages/flutter_svg_pro">
-    <img src="https://img.shields.io/badge/pub-v1.0.1-blue.svg?style=flat-square" alt="Pub Version" />
+    <img src="https://img.shields.io/badge/pub-v1.0.2-blue.svg?style=flat-square" alt="Pub Version" />
   </a>
   <a href="https://github.com/khsuzan/flutter_svg_pro">
     <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="MIT License" />
@@ -72,7 +72,7 @@ Add this to your Dart package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_svg_pro: ^1.0.1
+  flutter_svg_pro: ^1.0.2
 ```
 
 Then, run `flutter pub get` in your terminal.

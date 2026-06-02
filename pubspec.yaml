@@ -1,6 +1,6 @@
 name: flutter_svg_pro
 description: "An interactive, highly-optimized, isolate-powered SVG parsing and rendering engine for Flutter with CSS styling and selection hit-testing."
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/khsuzan/flutter_svg_pro
 repository: https://github.com/khsuzan/flutter_svg_pro
 

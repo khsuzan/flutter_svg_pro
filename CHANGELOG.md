@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Updated `SvgStyleRegistry` to correctly merge optional stylesheet classes properties with inline attributes following standard CSS precedence order.
+
 ## 1.0.1
 
 * Improved selection hit-testing selectivity by only allowing paths/groups with explicit IDs to be interactive and selectable, preventing accidental selection of background/decorative shapes (like border outlines or shadows) auto-assigned with fallback `part_X` IDs.
