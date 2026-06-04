@@ -15,13 +15,14 @@ class MyApp extends StatelessWidget {
       title: 'SVG Pro Diagnostics',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark,
-        colorSchemeSeed: const Color(0xFF38BDF8),
+        brightness: Brightness.light,
+        colorSchemeSeed: const Color(0xFF0284C7),
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         cardTheme: CardThemeData(
-          color: const Color(0xFF1E293B),
-          elevation: 4,
+          color: Colors.white,
+          elevation: 2,
+          shadowColor: const Color(0x1F0F172A),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
@@ -155,7 +156,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
         return AlertDialog(
           title: const Row(
             children: [
-              Icon(Icons.assignment_turned_in_rounded, color: Color(0xFF38BDF8)),
+              Icon(Icons.assignment_turned_in_rounded, color: Color(0xFF0284C7)),
               SizedBox(width: 10),
               Text('Diagnostic Report'),
             ],
@@ -173,7 +174,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(side.icon, size: 18, color: const Color(0xFF38BDF8)),
+                          Icon(side.icon, size: 18, color: const Color(0xFF0284C7)),
                           const SizedBox(width: 8),
                           Text(
                             side.name,
@@ -183,7 +184,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                           Text(
                             '${names.length} selected',
                             style: TextStyle(
-                              color: names.isNotEmpty ? const Color(0xFF34D399) : Colors.grey,
+                              color: names.isNotEmpty ? const Color(0xFF10B981) : Colors.grey.shade600,
                               fontSize: 12,
                             ),
                           ),
@@ -198,17 +199,17 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                               return Chip(
                                 label: Text(name, style: const TextStyle(fontSize: 11)),
                                 visualDensity: VisualDensity.compact,
-                                backgroundColor: const Color(0xFF0F172A),
+                                backgroundColor: const Color(0xFFF1F5F9),
                               );
                             }).toList(),
                           ),
                         )
                       else
-                        const Padding(
-                          padding: EdgeInsets.only(left: 26, top: 2),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 26, top: 2),
                           child: Text(
                             'No defects or parts marked.',
-                            style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontStyle: FontStyle.italic),
                           ),
                         ),
                       const Divider(height: 16),
@@ -254,21 +255,21 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
-        color: Color(0xFF1E293B),
-        border: Border(bottom: BorderSide(color: Color(0xFF334155), width: 1)),
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF38BDF8), width: 1.5),
+              border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
             ),
             child: const Icon(
               Icons.directions_car_rounded,
-              color: Color(0xFF38BDF8),
+              color: Color(0xFF0284C7),
               size: 28,
             ),
           ),
@@ -283,12 +284,12 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
-                    color: Colors.white,
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 Text(
                   'Select vehicle areas to log defects',
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                 ),
               ],
             ),
@@ -300,21 +301,21 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0x2638BDF8),
+                  color: const Color(0x1A0284C7),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF38BDF8), width: 1),
+                  border: Border.all(color: const Color(0xFF0284C7), width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF38BDF8)),
+                    const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF0284C7)),
                     const SizedBox(width: 6),
                     Text(
                       '${_getTotalSelectedCount()} MARKED',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
-                        color: Color(0xFF38BDF8),
+                        color: Color(0xFF0284C7),
                       ),
                     ),
                   ],
@@ -335,8 +336,8 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
         Container(
           width: 320,
           decoration: const BoxDecoration(
-            border: Border(right: BorderSide(color: Color(0xFF334155), width: 1)),
-            color: Color(0xFF0F172A),
+            border: Border(right: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
+            color: Colors.white,
           ),
           child: Column(
             children: [
@@ -348,7 +349,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
         // Main SVG Area
         Expanded(
           child: Container(
-            color: const Color(0xFF0B0F19),
+            color: const Color(0xFFF8FAFC),
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
@@ -365,7 +366,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
 
   Widget _buildNarrowLayout() {
     return Container(
-      color: const Color(0xFF0B0F19),
+      color: const Color(0xFFF8FAFC),
       child: Column(
         children: [
           // Horizontal Menu at top
@@ -373,7 +374,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
             height: 90,
             child: _buildSideMenu(isVertical: false),
           ),
-          const Divider(height: 1, color: Color(0xFF334155)),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
           // Main SVG Area
           Expanded(
             child: Padding(
@@ -413,7 +414,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Material(
-              color: isSelected ? const Color(0x1A38BDF8) : const Color(0xFF1E293B),
+              color: isSelected ? const Color(0x1A0284C7) : Colors.white,
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
                 onTap: () => _onSideChanged(side.path),
@@ -423,13 +424,13 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF38BDF8) : const Color(0xFF334155),
+                      color: isSelected ? const Color(0xFF0284C7) : const Color(0xFFE2E8F0),
                       width: isSelected ? 1.5 : 1,
                     ),
                   ),
                   child: Row(
                     children: [
-                      Icon(side.icon, color: isSelected ? const Color(0xFF38BDF8) : Colors.grey, size: 24),
+                      Icon(side.icon, color: isSelected ? const Color(0xFF0284C7) : Colors.grey.shade600, size: 24),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
@@ -439,13 +440,13 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                               side.name,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? Colors.white : Colors.grey.shade300,
+                                color: isSelected ? const Color(0xFF0284C7) : Colors.grey.shade800,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               side.description,
-                              style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                             ),
                           ],
                         ),
@@ -454,7 +455,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: const BoxDecoration(
-                            color: Color(0xFF34D399),
+                            color: Color(0xFF10B981),
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
@@ -462,7 +463,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                             child: Text(
                               '$count',
                               style: const TextStyle(
-                                color: Color(0xFF0F172A),
+                                color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -494,14 +495,14 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                 boxShadow: [
                   if (isSelected)
                     BoxShadow(
-                      color: const Color(0x2638BDF8),
+                      color: const Color(0x1A0284C7),
                       blurRadius: 10,
                       spreadRadius: 1,
                     ),
                 ],
               ),
               child: Material(
-                color: isSelected ? const Color(0x1A38BDF8) : const Color(0xFF1E293B),
+                color: isSelected ? const Color(0x1A0284C7) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
                   onTap: () => _onSideChanged(side.path),
@@ -515,7 +516,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(side.icon, color: isSelected ? const Color(0xFF38BDF8) : Colors.grey, size: 20),
+                              Icon(side.icon, color: isSelected ? const Color(0xFF0284C7) : Colors.grey.shade600, size: 20),
                               const SizedBox(height: 4),
                               Text(
                                 side.name,
@@ -523,7 +524,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 11,
-                                  color: isSelected ? Colors.white : Colors.grey.shade300,
+                                  color: isSelected ? const Color(0xFF0284C7) : Colors.grey.shade800,
                                 ),
                               ),
                             ],
@@ -537,7 +538,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
-                              color: Color(0xFF34D399),
+                              color: Color(0xFF10B981),
                               shape: BoxShape.circle,
                             ),
                             constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
@@ -545,7 +546,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                               child: Text(
                                 '$count',
                                 style: const TextStyle(
-                                  color: Color(0xFF0F172A),
+                                  color: Colors.white,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -568,8 +569,8 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-        color: Color(0xFF1E293B),
-        border: Border(top: BorderSide(color: Color(0xFF334155), width: 1)),
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -586,8 +587,8 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
             icon: const Icon(Icons.assignment_rounded, size: 18),
             label: const Text('Export Report'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF38BDF8),
-              foregroundColor: const Color(0xFF0F172A),
+              backgroundColor: const Color(0xFF0284C7),
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -637,7 +638,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
   Widget _buildViewerCard() {
     return Card(
       margin: EdgeInsets.zero,
-      color: const Color(0xFF1E293B),
+      color: Colors.white,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Stack(
@@ -651,7 +652,7 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(color: Color(0xFF38BDF8)),
+                          CircularProgressIndicator(color: Color(0xFF0284C7)),
                           SizedBox(height: 12),
                           Text('Loading Vector Graphics...', style: TextStyle(color: Colors.grey)),
                         ],
@@ -681,7 +682,10 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                         externalCss: data['css'],
                         selectionMode: _mode,
                         selectedPartIds: _selectionsPerSide[_selectedSidePath],
-                        selectionHighlightColor: const Color(0x6634D399), // cyber green translucent overlay
+                        selectionHighlightColor: const Color(0x4010B981), // clean translucent green
+                        colorOverrides: const {
+                          'st0': Color(0xFFE2E8F0), // premium light slate grey
+                        },
                         onPartSelected: (part) {
                           debugPrint('Selected Part: ${part.name} (id: ${part.id})');
                         },
@@ -704,9 +708,9 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xD90F172A),
+                  color: const Color(0xD9FFFFFF),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF334155), width: 1),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -714,12 +718,12 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                     Icon(
                       _carSides.firstWhere((s) => s.path == _selectedSidePath).icon,
                       size: 14,
-                      color: const Color(0xFF38BDF8),
+                      color: const Color(0xFF0284C7),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       _carSides.firstWhere((s) => s.path == _selectedSidePath).name.toUpperCase(),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF38BDF8)),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
                     ),
                   ],
                 ),
@@ -732,12 +736,12 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0x990F172A),
+                  color: const Color(0x99FFFFFF),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
+                child: Text(
                   'Tap components to select/deselect',
-                  style: TextStyle(fontSize: 10, color: Colors.grey, fontStyle: FontStyle.italic),
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
                 ),
               ),
             ),
@@ -752,9 +756,9 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF334155), width: 1),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
       child: Row(
         children: [
@@ -796,22 +800,22 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
                           child: Chip(
                             label: Text(
                               currentNames[index],
-                              style: const TextStyle(fontSize: 10, color: Colors.white),
+                              style: TextStyle(fontSize: 10, color: Colors.grey.shade800),
                             ),
                             visualDensity: VisualDensity.compact,
-                            backgroundColor: const Color(0xFF0F172A),
-                            side: const BorderSide(color: Color(0xFF38BDF8), width: 0.5),
+                            backgroundColor: const Color(0xFFF1F5F9),
+                            side: const BorderSide(color: Color(0xFF0284C7), width: 0.5),
                           ),
                         );
                       },
                     ),
                   )
                 else
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
                       'No parts marked on this side view.',
-                      style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontStyle: FontStyle.italic),
                     ),
                   ),
               ],
@@ -823,8 +827,8 @@ class _SvgDemoPageState extends State<SvgDemoPage> {
             ElevatedButton(
               onPressed: _showReportDialog,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF38BDF8),
-                foregroundColor: const Color(0xFF0F172A),
+                backgroundColor: const Color(0xFF0284C7),
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               ),

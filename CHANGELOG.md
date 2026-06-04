@@ -1,3 +1,9 @@
+## 1.0.5
+
+* Added standard SVG fallback styling. Classless SVG elements with no styling attributes now default to a solid black fill (`#000000`) instead of rendering as transparent, fully conforming to the W3C SVG specification.
+* Resolved rendering bugs where sidecar vehicle outlines (`left_side.svg` and `right_side.svg`) failed to draw on white backgrounds due to lack of defined class styling on the main outline paths.
+* Added robust merging of inline `opacity` attributes and improved styling registry fallbacks.
+
 ## 1.0.4
 
 * Implemented `didUpdateWidget` in `SvgProViewer` to dynamically reload SVG resources and CSS data when `rawSvg` or `externalCss` values change.

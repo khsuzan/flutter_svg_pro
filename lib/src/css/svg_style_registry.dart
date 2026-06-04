@@ -37,6 +37,25 @@ class SvgStyleRegistry {
     }
   }
 
+  /// Applies custom color overrides to class rules in the registry.
+  void applyFillOverrides(Map<String, Color> overrides) {
+    for (final entry in overrides.entries) {
+      if (_registry.containsKey(entry.key)) {
+        final existing = _registry[entry.key]!;
+        _registry[entry.key] = SvgStyle(
+          fillPaint: existing.hasFill
+              ? (Paint()
+                ..color = entry.value
+                ..style = PaintingStyle.fill)
+              : null,
+          strokePaint: existing.strokePaint,
+          hasFill: existing.hasFill,
+          hasStroke: existing.hasStroke,
+        );
+      }
+    }
+  }
+
   /// Resolves the final cascading [SvgStyle] for an element.
   ///
   /// Merges optional stylesheet [className] properties with [inlineAttributes]
@@ -52,8 +71,19 @@ class SvgStyleRegistry {
 
     if (inlineAttributes.containsKey('fill') ||
         inlineAttributes.containsKey('stroke') ||
-        inlineAttributes.containsKey('stroke-width')) {
+        inlineAttributes.containsKey('stroke-width') ||
+        inlineAttributes.containsKey('opacity')) {
       return _parseInlineAndMerge(baseStyle, inlineAttributes);
+    }
+
+    if (className == null) {
+      return SvgStyle(
+        fillPaint: Paint()
+          ..color = const Color(0xFF000000)
+          ..style = PaintingStyle.fill,
+        hasFill: true,
+        hasStroke: false,
+      );
     }
 
     return baseStyle ?? SvgStyle();
@@ -61,10 +91,10 @@ class SvgStyleRegistry {
 
   SvgStyle _parseRules(String rulesBlock) {
     final rules = rulesBlock.split(';');
-    Color fill = const Color(0x00000000);
+    Color fill = const Color(0xFF000000);
     Color stroke = const Color(0x00000000);
     double strokeWidth = 1.0;
-    bool hasFill = false;
+    bool hasFill = true;
     bool hasStroke = false;
     double opacity = 1.0;
 
@@ -79,12 +109,16 @@ class SvgStyleRegistry {
           if (value != 'none') {
             fill = _parseColor(value);
             hasFill = true;
+          } else {
+            hasFill = false;
           }
           break;
         case 'stroke':
           if (value != 'none') {
             stroke = _parseColor(value);
             hasStroke = true;
+          } else {
+            hasStroke = false;
           }
           break;
         case 'stroke-width':
@@ -138,10 +172,10 @@ class SvgStyleRegistry {
   SvgStyle _parseInlineAndMerge(SvgStyle? base, Map<String, String> inline) {
     final baseFillPaint = base?.fillPaint;
     final baseStrokePaint = base?.strokePaint;
-    final baseHasFill = base?.hasFill ?? false;
+    final baseHasFill = base?.hasFill ?? true;
     final baseHasStroke = base?.hasStroke ?? false;
 
-    Color fillColor = baseFillPaint?.color ?? const Color(0x00000000);
+    Color fillColor = baseFillPaint?.color ?? const Color(0xFF000000);
     Color strokeColor = baseStrokePaint?.color ?? const Color(0x00000000);
     double strokeWidth = baseStrokePaint?.strokeWidth ?? 1.0;
     bool hasFill = baseHasFill;

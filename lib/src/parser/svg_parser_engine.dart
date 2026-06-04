@@ -29,6 +29,7 @@ class SvgParserEngine {
   Future<List<SvgPart>> parseAsync(
     String rawSvgText, {
     String? externalCss,
+    Map<String, Color>? colorOverrides,
   }) async {
     if (externalCss != null) styleRegistry.parseAndRegisterCss(externalCss);
 
@@ -50,6 +51,10 @@ class SvgParserEngine {
     final cssRules = List<String>.from(parseResult['cssRules']);
     for (var rule in cssRules) {
       styleRegistry.parseAndRegisterCss(rule);
+    }
+
+    if (colorOverrides != null) {
+      styleRegistry.applyFillOverrides(colorOverrides);
     }
 
     // 2. Set viewBox

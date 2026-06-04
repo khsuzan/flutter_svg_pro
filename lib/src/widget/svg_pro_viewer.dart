@@ -41,6 +41,10 @@ class SvgProViewer extends StatefulWidget {
   /// Optional set of selected part IDs to control selection externally.
   final Set<String>? selectedPartIds;
 
+  /// Map of CSS class names → replacement color.
+  /// E.g. `{'st0': Colors.black, 'st2': Colors.grey}`
+  final Map<String, Color>? colorOverrides;
+
   /// Creates an interactive [SvgProViewer] with the given parameters.
   const SvgProViewer({
     super.key,
@@ -51,6 +55,7 @@ class SvgProViewer extends StatefulWidget {
     this.onSelectionChanged,
     this.selectionHighlightColor,
     this.selectedPartIds,
+    this.colorOverrides,
   });
 
   @override
@@ -74,7 +79,9 @@ class _SvgProViewerState extends State<SvgProViewer> {
   @override
   void didUpdateWidget(SvgProViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.rawSvg != widget.rawSvg || oldWidget.externalCss != widget.externalCss) {
+    if (oldWidget.rawSvg != widget.rawSvg ||
+        oldWidget.externalCss != widget.externalCss ||
+        oldWidget.colorOverrides != widget.colorOverrides) {
       _selectedComponentIds.clear();
       if (widget.selectedPartIds != null) {
         _selectedComponentIds.addAll(widget.selectedPartIds!);
@@ -91,7 +98,11 @@ class _SvgProViewerState extends State<SvgProViewer> {
 
   Future<void> _loadSvg() async {
     final engine = SvgParserEngine();
-    final components = await engine.parseAsync(widget.rawSvg, externalCss: widget.externalCss);
+    final components = await engine.parseAsync(
+      widget.rawSvg,
+      externalCss: widget.externalCss,
+      colorOverrides: widget.colorOverrides,
+    );
     if (mounted) {
       setState(() {
         _parserEngine = engine;

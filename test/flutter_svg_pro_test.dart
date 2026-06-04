@@ -119,6 +119,21 @@ void main() {
       expect(style.hasStroke, false);
     });
 
+    test('returns default black fill style for classless elements with no style attributes', () {
+      final style = registry.resolveStyle(null, {});
+      expect(style.hasFill, true);
+      expect(style.fillPaint?.color, const Color(0xFF000000));
+      expect(style.hasStroke, false);
+    });
+
+    test('returns custom inline attributes merged with default black fill style for classless elements', () {
+      final style = registry.resolveStyle(null, {'stroke': '#FF0000'});
+      expect(style.hasFill, true);
+      expect(style.fillPaint?.color, const Color(0xFF000000));
+      expect(style.hasStroke, true);
+      expect(style.strokePaint?.color, const Color(0xFFFF0000));
+    });
+
     test('parses compound CSS selectors', () {
       registry.parseAndRegisterCss('.st0, .st1 { fill: none; stroke: #333; }');
       final style0 = registry.resolveStyle('st0', {});
@@ -142,6 +157,14 @@ void main() {
       expect(registry.resolveStyle('a', {}).fillPaint?.color.toARGB32(), 0xFF111111);
       expect(registry.resolveStyle('b', {}).fillPaint?.color.toARGB32(), 0xFF222222);
       expect(registry.resolveStyle('b', {}).hasStroke, true);
+    });
+
+    test('applies fill color overrides', () {
+      registry.parseAndRegisterCss('.st0 { fill: #FFFFFF; }');
+      registry.applyFillOverrides({'st0': const Color(0xFF00FF00)});
+      final style = registry.resolveStyle('st0', {});
+      expect(style.hasFill, true);
+      expect(style.fillPaint?.color, const Color(0xFF00FF00));
     });
   });
 
@@ -324,6 +347,16 @@ void main() {
         parts.first.drawablePaths.first.style.fillPaint?.color.toARGB32(),
         0xFFFF8800,
       );
+    });
+
+    test('applies colorOverrides parameter', () async {
+      final svg = '''<svg viewBox="0 0 100 100">
+        <style>.st0 { fill: #FFFFFF; }</style>
+        <path id="path1" class="st0" d="M10 10 L 50 10 L 50 50 Z"/>
+      </svg>''';
+      final parts = await engine.parseAsync(svg, colorOverrides: {'st0': const Color(0xFF00FF00)});
+      expect(parts.length, 1);
+      expect(parts.first.drawablePaths.first.style.fillPaint?.color, const Color(0xFF00FF00));
     });
 
     test('handles invalid path data gracefully', () async {
