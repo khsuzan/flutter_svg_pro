@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg_pro/flutter_svg_pro.dart';
 
@@ -453,6 +454,46 @@ void main() {
         viewBox: painter1.viewBox,
         highlightColor: painter1.highlightColor,
       )), false);
+    });
+  });
+
+  group('SvgProViewer Loading Widget', () {
+    testWidgets('shows default CircularProgressIndicator when loadingWidget is null', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SvgProViewer(
+              rawSvg: '<svg viewBox="0 0 100 100"></svg>',
+            ),
+          ),
+        ),
+      );
+
+      // Verify that CircularProgressIndicator is visible initially (during loading)
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // Settle any outstanding microtasks/futures (SVG parsing is async)
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('shows custom loadingWidget when provided', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SvgProViewer(
+              rawSvg: '<svg viewBox="0 0 100 100"></svg>',
+              loadingWidget: Text('Custom Loading...'),
+            ),
+          ),
+        ),
+      );
+
+      // Verify that the custom loading widget is visible initially
+      expect(find.text('Custom Loading...'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+
+      // Settle any outstanding microtasks/futures
+      await tester.pumpAndSettle();
     });
   });
 }

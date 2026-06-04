@@ -45,6 +45,11 @@ class SvgProViewer extends StatefulWidget {
   /// E.g. `{'st0': Colors.black, 'st2': Colors.grey}`
   final Map<String, Color>? colorOverrides;
 
+  /// A custom loading widget to display while parsing the SVG XML text.
+  /// 
+  /// If null, a standard centered [CircularProgressIndicator] will be displayed.
+  final Widget? loadingWidget;
+
   /// Creates an interactive [SvgProViewer] with the given parameters.
   const SvgProViewer({
     super.key,
@@ -56,6 +61,7 @@ class SvgProViewer extends StatefulWidget {
     this.selectionHighlightColor,
     this.selectedPartIds,
     this.colorOverrides,
+    this.loadingWidget,
   });
 
   @override
@@ -160,7 +166,7 @@ class _SvgProViewerState extends State<SvgProViewer> {
   @override
   Widget build(BuildContext context) {
     if (_parserEngine == null || _parsedComponents == null) {
-      return const Center(child: CircularProgressIndicator());
+      return widget.loadingWidget ?? const Center(child: CircularProgressIndicator());
     }
 
     final viewBox = _parserEngine!.viewBox;

@@ -1,3 +1,7 @@
+## 1.0.6
+
+* Added support for a custom `loadingWidget` in `SvgProViewer` that is displayed during async SVG parsing, falling back to a standard centered `CircularProgressIndicator` if null.
+
 ## 1.0.5
 
 * Added standard SVG fallback styling. Classless SVG elements with no styling attributes now default to a solid black fill (`#000000`) instead of rendering as transparent, fully conforming to the W3C SVG specification.
