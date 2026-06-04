@@ -1,3 +1,9 @@
+## 1.0.4
+
+* Implemented `didUpdateWidget` in `SvgProViewer` to dynamically reload SVG resources and CSS data when `rawSvg` or `externalCss` values change.
+* Added `selectedPartIds` support to `SvgProViewer` enabling external selection state tracking and synchronization.
+* Updated the example application to a premium, responsive multi-view car diagnostic dashboard displaying all 5 main side views with persistent cross-view selections and state indicators.
+
 ## 1.0.3
 
 * Enhanced `SvgParserEngine` to robustly parse multiple chained transformation commands (e.g., `rotate(...) translate(...)`).

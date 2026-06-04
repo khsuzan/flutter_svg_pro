@@ -38,6 +38,9 @@ class SvgProViewer extends StatefulWidget {
   /// The overlay color used to highlight selected parts.
   final Color? selectionHighlightColor;
 
+  /// Optional set of selected part IDs to control selection externally.
+  final Set<String>? selectedPartIds;
+
   /// Creates an interactive [SvgProViewer] with the given parameters.
   const SvgProViewer({
     super.key,
@@ -47,6 +50,7 @@ class SvgProViewer extends StatefulWidget {
     this.onPartSelected,
     this.onSelectionChanged,
     this.selectionHighlightColor,
+    this.selectedPartIds,
   });
 
   @override
@@ -61,7 +65,28 @@ class _SvgProViewerState extends State<SvgProViewer> {
   @override
   void initState() {
     super.initState();
+    if (widget.selectedPartIds != null) {
+      _selectedComponentIds.addAll(widget.selectedPartIds!);
+    }
     _loadSvg();
+  }
+
+  @override
+  void didUpdateWidget(SvgProViewer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.rawSvg != widget.rawSvg || oldWidget.externalCss != widget.externalCss) {
+      _selectedComponentIds.clear();
+      if (widget.selectedPartIds != null) {
+        _selectedComponentIds.addAll(widget.selectedPartIds!);
+      }
+      _loadSvg();
+    } else if (widget.selectedPartIds != null && oldWidget.selectedPartIds != widget.selectedPartIds) {
+      setState(() {
+        _selectedComponentIds
+          ..clear()
+          ..addAll(widget.selectedPartIds!);
+      });
+    }
   }
 
   Future<void> _loadSvg() async {

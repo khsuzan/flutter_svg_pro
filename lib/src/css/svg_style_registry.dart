@@ -46,29 +46,8 @@ class SvgStyleRegistry {
     Map<String, String> inlineAttributes,
   ) {
     SvgStyle? baseStyle;
-    if (className != null) {
-      final classes = className
-          .split(RegExp(r'\s+'))
-          .where((c) => c.isNotEmpty);
-      for (final cls in classes) {
-        if (_registry.containsKey(cls)) {
-          final clsStyle = _registry[cls]!;
-          if (baseStyle == null) {
-            baseStyle = clsStyle;
-          } else {
-            baseStyle = SvgStyle(
-              fillPaint: clsStyle.hasFill
-                  ? clsStyle.fillPaint
-                  : baseStyle.fillPaint,
-              strokePaint: clsStyle.hasStroke
-                  ? clsStyle.strokePaint
-                  : baseStyle.strokePaint,
-              hasFill: baseStyle.hasFill || clsStyle.hasFill,
-              hasStroke: baseStyle.hasStroke || clsStyle.hasStroke,
-            );
-          }
-        }
-      }
+    if (className != null && _registry.containsKey(className)) {
+      baseStyle = _registry[className];
     }
 
     if (inlineAttributes.containsKey('fill') ||
